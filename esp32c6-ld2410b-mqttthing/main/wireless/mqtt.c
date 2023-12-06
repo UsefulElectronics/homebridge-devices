@@ -68,7 +68,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         mqttSubscribeBuffer.eventType = MQTT_BROKER_CONNECT;
 
         xQueueSendToBack(mqttSubscribe_queue, (void *)&mqttSubscribeBuffer, portMAX_DELAY);
-        esp_mqtt_client_subscribe(client, MQTT_TEMPERATURE_TOPIC, 0);
+//        esp_mqtt_client_subscribe(client, MQTT_TEMPERATURE_TOPIC, 0);
 //
 //        esp_mqtt_client_subscribe(client, MQTT_COLOR_TOPIC, 0);
 //

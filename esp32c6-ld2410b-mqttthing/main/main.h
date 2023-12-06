@@ -20,6 +20,7 @@
 /* INCLUDES ------------------------------------------------------------------*/
 #include "wireless/wifi_connect.h"
 #include "wireless/mqtt.h"
+#include "gpio/gpio_config.h"
 #include <stdio.h>
 #include <ctype.h>
 /* MACROS --------------------------------------------------------------------*/

@@ -17,20 +17,13 @@
 /* INCLUDES ------------------------------------------------------------------*/
 #include "main.h"
 
-#include "esp_interrupt.h"
-
-//#include "time.h"
-
-#include "lwip/ip_addr.h"
-
-#include "gpio/gpio_config.h"
 
 
 
 /* MACROS --------------------------------------------------------------------*/
 #define SYSTEM_BUFFER_SIZE		4
 /* DEFINITIONS ---------------------------------------------------------------*/
-
+#define SYS_TICK()				(xTaskGetTickCount() * portTICK_PERIOD_MS)
 /* PRIVATE STRUCTRES ---------------------------------------------------------*/
 typedef struct
 {
@@ -41,15 +34,11 @@ typedef struct
 bool prev_radar_status = false;
 /* VARIABLES -----------------------------------------------------------------*/
 static const char *main = "main";
-char targetString[10] = {0};
-
-static QueueHandle_t system_queue;
 
 TaskHandle_t hMain_uiTask 				= NULL;
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/
 
 static void wirless_init_task(void* param);
-static void mqtt_msg_pars_task(void* param);
 static void radar_handle_task(void* param);
 
 
@@ -92,7 +81,6 @@ static void wirless_init_task(void* param)
 
 static void radar_handle_task(void* param)
 {
-	struct tm  Time = {0};
 
 	char temp_topic_string[20] = {0};
 
@@ -102,18 +90,19 @@ static void radar_handle_task(void* param)
 
 	static uint32_t tempUpdateCounter = 0;
 
-	char publishRequest = 1;
+	char publishRequest = 0;
 	while(1)
 	{
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(1000) );
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5000) );
 
 		++tempUpdateCounter;
 
-		if(tempUpdatePeriod <= tempUpdateCounter)
+		if(publishRequest != gpio_get_level(RADAR_PIN))
 		{
+			publishRequest = gpio_get_level(RADAR_PIN);
+
 			mqtt_publish(temp_topic_string, &publishRequest, 1);
 
-			tempUpdateCounter = 0;
 		}
 
 	}
