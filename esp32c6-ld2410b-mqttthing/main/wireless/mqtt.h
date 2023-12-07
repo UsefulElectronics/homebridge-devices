@@ -39,7 +39,7 @@ extern QueueHandle_t mqttSubscribe_queue;
 #define MQTT_MAX_DATA_LENGTH	30
 
 #define MQTT_MOTION_DETECT_TOPIC 		"motion/detect"
-#define MQTT_MOTION_DETECT_TOPIC 		"motion/status"
+//#define MQTT_MOTION_DETECT_TOPIC 		"motion/status"
 
 
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/

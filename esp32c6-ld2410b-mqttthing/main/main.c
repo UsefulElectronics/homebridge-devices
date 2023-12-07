@@ -33,7 +33,7 @@ typedef struct
 
 bool prev_radar_status = false;
 /* VARIABLES -----------------------------------------------------------------*/
-static const char *main = "main";
+static const char *TAG = "main";
 
 TaskHandle_t hMain_uiTask 				= NULL;
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/
@@ -72,6 +72,8 @@ static void wirless_init_task(void* param)
 {
 	wifi_connect();
 
+	vTaskDelay(pdMS_TO_TICKS(10000));
+
 	mqtt_app_start();
 
 	vTaskDelete(NULL);
@@ -90,6 +92,8 @@ static void radar_handle_task(void* param)
 
 	static uint32_t tempUpdateCounter = 0;
 
+	uint8_t previous_radar_status = 0;
+
 	char publishRequest = 0;
 	while(1)
 	{
@@ -97,11 +101,15 @@ static void radar_handle_task(void* param)
 
 		++tempUpdateCounter;
 
-		if(publishRequest != gpio_get_level(RADAR_PIN))
+		if(previous_radar_status != gpio_get_level(RADAR_PIN))
 		{
-			publishRequest = gpio_get_level(RADAR_PIN);
+			previous_radar_status = gpio_get_level(RADAR_PIN);
+
+			publishRequest = previous_radar_status + 0x30;
 
 			mqtt_publish(temp_topic_string, &publishRequest, 1);
+
+			ESP_LOGI(TAG, "motion state changed %d", publishRequest);
 
 		}
 

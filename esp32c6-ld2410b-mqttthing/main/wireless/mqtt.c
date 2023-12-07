@@ -144,6 +144,8 @@ void mqtt_publish(const char *topic, const char *data, int len)
 	const uint8_t retainFeature        	= false;
 
 	esp_mqtt_client_publish(mqttClient, topic, data, len, (int) quelityOfServiceLevel, (int) retainFeature);
+
+	 ESP_LOGI(TAG, "publish to %s value %d",topic,data[0]);
 }
 /**
  * @brief Start MQTT broker connection and register MQTT related events callback
@@ -153,7 +155,7 @@ void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg =
     {
-        .broker.address.uri = "mqtt://192.168.1.104:1990",
+        .broker.address.uri = "mqtt://192.168.1.103:1883",
     };
 
     mqttSubscribe_queue = xQueueCreate(10, sizeof(mqtt_buffer_t));
