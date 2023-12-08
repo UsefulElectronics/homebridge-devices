@@ -59,7 +59,7 @@ void app_main(void)
      //Wait for WiFi and MQTT broker connection to be established.
      vTaskDelay(pdMS_TO_TICKS(15000));
 
-     xTaskCreatePinnedToCore(radar_handle_task, "Real time Handler", 10000, NULL, 4, NULL, 1);
+     xTaskCreatePinnedToCore(radar_handle_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
 
 }
 
@@ -99,7 +99,6 @@ static void radar_handle_task(void* param)
 	{
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5000) );
 
-		++tempUpdateCounter;
 
 		if(previous_radar_status != gpio_get_level(RADAR_PIN))
 		{
