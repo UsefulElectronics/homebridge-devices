@@ -18,6 +18,6 @@ Sonoff iHost gateway makes communication between smartphone and the connected lo
 
 Homebridge  plugin makes integrating costume DIY  IoT devices to home automation system a piece of cake, which is ideal for ESP32 based DIY devices. This tutorial is a good example of adding a custome ESP32 based sensor to home automation system
 
-![Circuit Diagram](https://github.com/UsefulElectronics/esp32s3-lilygo-thmi-ryuw122/blob/main/pictures/THMI.png)
+![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/mmwave%20sensor%20integration.png)
 ***
 
