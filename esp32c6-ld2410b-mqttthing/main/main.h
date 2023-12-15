@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <ctype.h>
 /* MACROS --------------------------------------------------------------------*/
-#define RADAR_PIN		7
+#define RADAR_PIN		8
 
 #define MQTT_DEVICE_ID	"1"
 /* ENUMORATIONS --------------------------------------------------------------*/
