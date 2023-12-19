@@ -17,7 +17,8 @@
 /* INCLUDES ------------------------------------------------------------------*/
 #include "main.h"
 
-
+#include "rgb_led/rmt_config.h"
+#include "rgb_led/hsv.h"
 
 
 /* MACROS --------------------------------------------------------------------*/
@@ -61,14 +62,14 @@ static void radar_handle_task(void* param);
 void app_main(void)
 {
 
-	gpio_config_input(RADAR_PIN);
+	rmt_config(RMT_RGB_PIN);
 
-	 xTaskCreatePinnedToCore(wirless_init_task, "WiFi init", 10000, NULL, 4, NULL, 0);
+	xTaskCreatePinnedToCore(wirless_init_task, "WiFi init", 10000, NULL, 4, NULL, 0);
 
-     //Wait for WiFi and MQTT broker connection to be established.
-     vTaskDelay(pdMS_TO_TICKS(15000));
+	//Wait for WiFi and MQTT broker connection to be established.
+	vTaskDelay(pdMS_TO_TICKS(15000));
 
-     xTaskCreatePinnedToCore(radar_handle_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
+	xTaskCreatePinnedToCore(radar_handle_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
 
 }
 
@@ -104,7 +105,7 @@ static void mqtt_msg_pars_task(void *param)
 		{
 			 if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_SET_HSV, sizeof(MQTT_RGBLED_SET_HSV)))
 			 {
-				 sscanf(mqttSubscribeBuffer.data, "%d, %d, %d", &hWs2811.hue, &hWs2811.sat, &hWs2811.bright);
+				 sscanf(mqttSubscribeBuffer.data, "%d, %d, %d",(int*) &hWs2811.hue, (int*) &hWs2811.sat, (int*) &hWs2811.bright);
 
 				 led_strip_hsv2rgb(hWs2811.hue, hWs2811.sat, hWs2811.bright, &hWs2811.red, &hWs2811.green, &hWs2811.blue);
 
@@ -121,75 +122,23 @@ static void mqtt_msg_pars_task(void *param)
 
 				 rmt_channel_send(hWs2811.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
 
-				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", hWs2811.hue, hWs2811.sat, hWs2811.bright);
+				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", (int) hWs2811.hue, (int) hWs2811.sat, (int) hWs2811.bright);
 
 				 mqtt_publish(MQTT_RGBLED_GET_HSV, &temp_publish_packet_buffer, strlen(temp_publish_packet_buffer));
 			 }
 			 else if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_GET_HSV, sizeof(MQTT_RGBLED_GET_HSV)))
 			 {
-				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", hWs2811.hue, hWs2811.sat, hWs2811.bright);
+				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", (int) hWs2811.hue, (int) hWs2811.sat, (int) hWs2811.bright);
 
 				 mqtt_publish(MQTT_RGBLED_GET_HSV, &temp_publish_packet_buffer, strlen(temp_publish_packet_buffer));
 			 }
-			 else if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_MODE_TOPIC, 5))
-			 {
 
-				 if(0 == memcmp(mqttSubscribeBuffer.data, HUE_PLAY, 3))
-				 {
-					 hWs2811.colorMode = COLOR_HUE_PLAY;
-				 }
-				 else if (0 == memcmp(mqttSubscribeBuffer.data, SAT_PLAY, 3))
-				 {
-					 hWs2811.colorMode = COLOR_SAT_PLAY;
-				 }
-			 }
-			 else if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_FREQUENCY_TOPIC, 5))
-			 {
-
-				 printf("speed %s", mqttSubscribeBuffer.data);
-				 sscanf(mqttSubscribeBuffer.data, "%d", & hWs2811.period);
-
-			 }
 		}
 
 	}
 
 }
 
-
-static void radar_handle_task(void* param)
-{
-
-	char temp_topic_string[20] = {0};
-
-	sprintf(temp_topic_string, "%s/%s",MQTT_DEVICE_ID, MQTT_MOTION_DETECT_TOPIC);
-
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-
-	static uint32_t tempUpdateCounter = 0;
-
-	uint8_t previous_radar_status = 0;
-
-	char publishRequest = 0;
-	while(1)
-	{
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5000) );
-
-
-		if(previous_radar_status != gpio_get_level(RADAR_PIN))
-		{
-			previous_radar_status = gpio_get_level(RADAR_PIN);
-
-			publishRequest = previous_radar_status + 0x30;
-
-			mqtt_publish(temp_topic_string, &publishRequest, 1);
-
-			ESP_LOGI(TAG, "motion state changed %d", publishRequest);
-
-		}
-
-	}
-}
 
 static uint32_t main_get_systick(void)
 {

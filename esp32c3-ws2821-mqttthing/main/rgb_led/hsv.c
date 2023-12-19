@@ -16,11 +16,11 @@
 
 /* INCLUDES ------------------------------------------------------------------*/
 #include "hsv.h"
-
+#include <stdio.h>
 /* PRIVATE STRUCTRES ---------------------------------------------------------*/
 
 /* VARIABLES -----------------------------------------------------------------*/
-static rmt_handler_t	hRmt = {0};
+
 /* DEFINITIONS ---------------------------------------------------------------*/
 
 /* MACROS --------------------------------------------------------------------*/
@@ -28,21 +28,51 @@ static rmt_handler_t	hRmt = {0};
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/
 
 /* FUNCTION PROTOTYPES -------------------------------------------------------*/
-/**
- * @brief 	Convert Hue, saturation and brightness values to 8 bit RGB value
- *
- * @param 	h	:	Used hue value which is the color angle between 0 and 360 that is used for conversion .
- *
- * @param 	s	:	Used saturation to determine how colorful the color is. this parameter is used for conversion.
- *
- * @param 	v	:	Used color brightness value to determine how bright the LED is. this parameter is used for conversion.
- *
- * @param 	r	:	Red color 8 bit value. Target pointer is passed to this function.
- *
- * @param 	g	:	Green color 8 bit value. Target pointer is passed to this function.
- *
- * @param 	b	:	Blue color 8 bit value. Target pointer is passed to this function.
- */
-void led_strip_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint32_t *r, uint32_t *g, uint32_t *b);
+void led_strip_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint32_t *r, uint32_t *g, uint32_t *b)
+{
+    h %= 360; // h -> [0,360]
+    uint32_t rgb_max = v * 2.55f;
+    uint32_t rgb_min = rgb_max * (100 - s) / 100.0f;
+
+    uint32_t i = h / 60;
+    uint32_t diff = h % 60;
+
+    // RGB adjustment amount by hue
+    uint32_t rgb_adj = (rgb_max - rgb_min) * diff / 60;
+
+    switch (i) {
+    case 0:
+        *r = rgb_max;
+        *g = rgb_min + rgb_adj;
+        *b = rgb_min;
+        break;
+    case 1:
+        *r = rgb_max - rgb_adj;
+        *g = rgb_max;
+        *b = rgb_min;
+        break;
+    case 2:
+        *r = rgb_min;
+        *g = rgb_max;
+        *b = rgb_min + rgb_adj;
+        break;
+    case 3:
+        *r = rgb_min;
+        *g = rgb_max - rgb_adj;
+        *b = rgb_max;
+        break;
+    case 4:
+        *r = rgb_min + rgb_adj;
+        *g = rgb_min;
+        *b = rgb_max;
+        break;
+    default:
+        *r = rgb_max;
+        *g = rgb_min;
+        *b = rgb_max - rgb_adj;
+        break;
+    }
+}
+
 
 /*************************************** USEFUL ELECTRONICS*****END OF FILE****/
