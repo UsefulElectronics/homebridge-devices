@@ -22,10 +22,12 @@
 #include <stddef.h>
 #include <string.h>
 #include "esp_log.h"
+#include "esp_check.h"
 
 #include "rmt_config.h"
 #include "driver/rmt_tx.h"
 #include "driver/rmt_encoder.h"
+#include "soc/clk_tree_defs.h"
 /* PRIVATE STRUCTRES ---------------------------------------------------------*/
 typedef struct
 {
@@ -39,6 +41,14 @@ typedef struct
 {
     uint32_t resolution; /*!< Encoder resolution, in Hz */
 } led_strip_encoder_config_t;
+
+typedef struct {
+    rmt_encoder_t base;
+    rmt_encoder_t *bytes_encoder;
+    rmt_encoder_t *copy_encoder;
+    int state;
+    rmt_symbol_word_t reset_code;
+} rmt_led_strip_encoder_t;
 /* VARIABLES -----------------------------------------------------------------*/
 static rmt_handler_t	hRmt = {0};
 

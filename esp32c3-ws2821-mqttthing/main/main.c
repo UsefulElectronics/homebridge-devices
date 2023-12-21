@@ -49,7 +49,7 @@ TaskHandle_t hMain_uiTask 				= NULL;
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/
 
 static void wirless_init_task(void* param);
-static void radar_handle_task(void* param);
+static void mqtt_msg_pars_task(void *param);
 
 
 
@@ -69,7 +69,7 @@ void app_main(void)
 	//Wait for WiFi and MQTT broker connection to be established.
 	vTaskDelay(pdMS_TO_TICKS(15000));
 
-	xTaskCreatePinnedToCore(radar_handle_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
+	xTaskCreatePinnedToCore(mqtt_msg_pars_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
 
 }
 
