@@ -19,6 +19,7 @@
 
 #include "rgb_led/rmt_config.h"
 #include "rgb_led/hsv.h"
+#include "stdbool.h"
 
 
 /* MACROS --------------------------------------------------------------------*/
@@ -51,7 +52,7 @@ TaskHandle_t hMain_uiTask 				= NULL;
 static void wirless_init_task(void* param);
 static void mqtt_msg_pars_task(void *param);
 
-
+static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue);
 
 
 /* FUNCTION PROTOTYPES -------------------------------------------------------*/
@@ -82,9 +83,9 @@ static void wirless_init_task(void* param)
 {
 	wifi_connect();
 
-	vTaskDelay(pdMS_TO_TICKS(10000));
-
 	mqtt_app_start();
+
+	system_led_buffer_load(0, 0, 0);
 
 	vTaskDelete(NULL);
 }
@@ -93,9 +94,7 @@ static void wirless_init_task(void* param)
 static void mqtt_msg_pars_task(void *param)
 {
 
-	char temp_publish_packet_buffer[20] = {0};
-
-    mqtt_buffer_t mqttSubscribeBuffer;
+    static mqtt_buffer_t mqttSubscribeBuffer = {0};
     //Let the lamp turned open once it is powered up
     hWs2811.bright = 100;
 
@@ -103,34 +102,39 @@ static void mqtt_msg_pars_task(void *param)
 	{
 		if(xQueueReceive(mqttSubscribe_queue, (void *)&mqttSubscribeBuffer, portMAX_DELAY))
 		{
-			 if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_SET_HSV, sizeof(MQTT_RGBLED_SET_HSV)))
+			ESP_LOGI(TAG, "data %s", mqttSubscribeBuffer.data);
+			ESP_LOGI(TAG, "topicString %s", mqttSubscribeBuffer.topicString);
+			 if(0 == strcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_SET_HSV))
 			 {
 				 sscanf(mqttSubscribeBuffer.data, "%d, %d, %d",(int*) &hWs2811.hue, (int*) &hWs2811.sat, (int*) &hWs2811.bright);
 
+				 ESP_LOGI(TAG, "mqtt set hsv %s", mqttSubscribeBuffer.data);
+
 				 led_strip_hsv2rgb(hWs2811.hue, hWs2811.sat, hWs2811.bright, &hWs2811.red, &hWs2811.green, &hWs2811.blue);
 
-					for (int i = 0; i < RGB_COLOR_COUNT; i++)
-					{
-						for (int j = i; j < RGB_LED_NUMBER ; j += 3)
-						{
-							// Build RGB pixels
-							hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 0] = hWs2811.green;
-							hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 1] = hWs2811.red;
-							hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 2] = hWs2811.blue;
-						}
-					}
+				 system_led_buffer_load(hWs2811.red, hWs2811.green, hWs2811.blue);
 
 				 rmt_channel_send(hWs2811.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
 
-				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", (int) hWs2811.hue, (int) hWs2811.sat, (int) hWs2811.bright);
 
-				 mqtt_publish(MQTT_RGBLED_GET_HSV, &temp_publish_packet_buffer, strlen(temp_publish_packet_buffer));
 			 }
-			 else if(0 == memcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_GET_HSV, sizeof(MQTT_RGBLED_GET_HSV)))
+			 else if(0 == strcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_SET_ON))
 			 {
-				 sprintf(temp_publish_packet_buffer, "%d, %d, %d", (int) hWs2811.hue, (int) hWs2811.sat, (int) hWs2811.bright);
+				 bool led_Status = atoi(mqttSubscribeBuffer.data);
 
-				 mqtt_publish(MQTT_RGBLED_GET_HSV, &temp_publish_packet_buffer, strlen(temp_publish_packet_buffer));
+				 ESP_LOGI(TAG, "mqtt set status %s", mqttSubscribeBuffer.data);
+
+				 if(led_Status)
+				 {
+					 system_led_buffer_load(hWs2811.red, hWs2811.green, hWs2811.blue);
+				 }
+				 else
+				 {
+					 system_led_buffer_load(0, 0, 0);
+				 }
+				 rmt_channel_send(hWs2811.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
+
+				 memset(&mqttSubscribeBuffer, 0, sizeof(mqtt_buffer_t));
 			 }
 
 		}
@@ -145,4 +149,17 @@ static uint32_t main_get_systick(void)
 	return SYS_TICK();
 }
 
+static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue)
+{
+	for (int i = 0; i < RGB_COLOR_COUNT; i++)
+	{
+		for (int j = i; j < RGB_LED_NUMBER ; j += 3)
+		{
+			// Build RGB pixels
+			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 0] = green;
+			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 1] = red;
+			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 2] = blue;
+		}
+	}
+}
 /*************************************** USEFUL ELECTRONICS*****END OF FILE****/

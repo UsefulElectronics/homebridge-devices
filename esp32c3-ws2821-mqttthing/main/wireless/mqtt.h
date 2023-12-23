@@ -28,6 +28,10 @@
 #include "string.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 /* PRIVATE STRUCTRES ---------------------------------------------------------*/
 
 /* VARIABLES -----------------------------------------------------------------*/
@@ -55,6 +59,7 @@ typedef enum
 	MQTT_TOPIC_PUBLISHED,
 	MQTT_TOPIC_DATA_RX
 }mqtt_event_t;
+
 typedef struct
 {
 	char 		 topicString[MQTT_MAX_TOPIC_LENGTH];
