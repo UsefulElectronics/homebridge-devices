@@ -38,11 +38,13 @@ typedef struct
     uint32_t green;
     uint32_t blue;
 
-    uint8_t led_strip_buffer[RGB_LED_NUMBER];
+    uint8_t led_strip_buffer[RGB_LED_NUMBER * RGB_LED_NUMBER];
 
-}ws2811_handler_t;
+    bool led_strip_status;
 
-ws2811_handler_t hWs2811 = {0};
+}ws2812_handler_t;
+
+ws2812_handler_t hWs2812 = {0};
 /* VARIABLES -----------------------------------------------------------------*/
 static const char *TAG = "main";
 
@@ -53,7 +55,7 @@ static void wirless_init_task(void* param);
 static void mqtt_msg_pars_task(void *param);
 
 static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue);
-
+static void mqtt_publish_task(void *param);
 
 /* FUNCTION PROTOTYPES -------------------------------------------------------*/
 /**
@@ -70,7 +72,9 @@ void app_main(void)
 	//Wait for WiFi and MQTT broker connection to be established.
 	vTaskDelay(pdMS_TO_TICKS(15000));
 
-	xTaskCreatePinnedToCore(mqtt_msg_pars_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
+	xTaskCreatePinnedToCore(mqtt_msg_pars_task, "mqtt parser Handler", 10000, NULL, 4, NULL, 0);
+
+//	xTaskCreatePinnedToCore(mqtt_publish_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
 
 }
 
@@ -85,8 +89,6 @@ static void wirless_init_task(void* param)
 
 	mqtt_app_start();
 
-	system_led_buffer_load(0, 0, 0);
-
 	vTaskDelete(NULL);
 }
 
@@ -95,8 +97,6 @@ static void mqtt_msg_pars_task(void *param)
 {
 
     static mqtt_buffer_t mqttSubscribeBuffer = {0};
-    //Let the lamp turned open once it is powered up
-    hWs2811.bright = 100;
 
 	while (1)
 	{
@@ -106,15 +106,17 @@ static void mqtt_msg_pars_task(void *param)
 			ESP_LOGI(TAG, "topicString %s", mqttSubscribeBuffer.topicString);
 			 if(0 == strcmp(mqttSubscribeBuffer.topicString, MQTT_RGBLED_SET_HSV))
 			 {
-				 sscanf(mqttSubscribeBuffer.data, "%d, %d, %d",(int*) &hWs2811.hue, (int*) &hWs2811.sat, (int*) &hWs2811.bright);
+				 sscanf(mqttSubscribeBuffer.data, "%d, %d, %d",(int*) &hWs2812.hue, (int*) &hWs2812.sat, (int*) &hWs2812.bright);
 
 				 ESP_LOGI(TAG, "mqtt set hsv %s", mqttSubscribeBuffer.data);
 
-				 led_strip_hsv2rgb(hWs2811.hue, hWs2811.sat, hWs2811.bright, &hWs2811.red, &hWs2811.green, &hWs2811.blue);
+				 hWs2812.led_strip_status = true;
 
-				 system_led_buffer_load(hWs2811.red, hWs2811.green, hWs2811.blue);
+				 led_strip_hsv2rgb(hWs2812.hue, hWs2812.sat, hWs2812.bright, &hWs2812.red, &hWs2812.green, &hWs2812.blue);
 
-				 rmt_channel_send(hWs2811.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
+				 system_led_buffer_load(hWs2812.red, hWs2812.green, hWs2812.blue);
+
+				 rmt_channel_send(hWs2812.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
 
 
 			 }
@@ -126,13 +128,17 @@ static void mqtt_msg_pars_task(void *param)
 
 				 if(led_Status)
 				 {
-					 system_led_buffer_load(hWs2811.red, hWs2811.green, hWs2811.blue);
+					 system_led_buffer_load(hWs2812.red, hWs2812.green, hWs2812.blue);
+
+					 hWs2812.led_strip_status = true;
 				 }
 				 else
 				 {
 					 system_led_buffer_load(0, 0, 0);
+
+					 hWs2812.led_strip_status = false;
 				 }
-				 rmt_channel_send(hWs2811.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
+				 rmt_channel_send(hWs2812.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
 
 				 memset(&mqttSubscribeBuffer, 0, sizeof(mqtt_buffer_t));
 			 }
@@ -141,6 +147,43 @@ static void mqtt_msg_pars_task(void *param)
 
 	}
 
+}
+
+static void mqtt_publish_task(void *param)
+{
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+
+	char temp_topic_string[20] = {0};
+
+	char temp_publish_string[20] = {0};
+
+	bool topic_toggle = false;
+
+	while(1)
+	{
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5000) );
+
+		topic_toggle ^= 1;
+
+		switch (topic_toggle)
+		{
+			case 1:
+				printf(temp_publish_string, "%d",hWs2812.led_strip_status);
+
+				mqtt_publish(MQTT_RGBLED_GET_ON, &temp_publish_string, 1);
+				break;
+
+			case 0:
+				sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
+
+				mqtt_publish(temp_topic_string, &temp_publish_string, strlen(temp_publish_string));
+
+				break;
+			default:
+				break;
+		}
+
+	}
 }
 
 
@@ -156,9 +199,9 @@ static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue)
 		for (int j = i; j < RGB_LED_NUMBER ; j += 3)
 		{
 			// Build RGB pixels
-			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 0] = green;
-			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 1] = red;
-			hWs2811.led_strip_buffer[j * RGB_COLOR_COUNT + 2] = blue;
+			hWs2812.led_strip_buffer[j * RGB_COLOR_COUNT + 0] = green;
+			hWs2812.led_strip_buffer[j * RGB_COLOR_COUNT + 1] = red;
+			hWs2812.led_strip_buffer[j * RGB_COLOR_COUNT + 2] = blue;
 		}
 	}
 }

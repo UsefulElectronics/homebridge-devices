@@ -60,10 +60,59 @@ static uint8_t led_strip_pixels[RGB_LED_NUMBER * 3];
 /* MACROS --------------------------------------------------------------------*/
 
 /* PRIVATE FUNCTIONS DECLARATION ---------------------------------------------*/
+/**
+ * @brief Deletes and releases resources associated with an LED strip encoder in the RMT (Remote Control) module.
+ *
+ * This function deletes an LED strip encoder in the RMT module and releases associated resources.
+ *
+ * @param encoder Pointer to the LED strip encoder to be deleted.
+ *
+ * @return esp_err_t Returns ESP_OK on success, otherwise an error code.
+ *
+ * @note This function deallocates memory and resources used by the LED strip encoder.
+ *
+ * @details The function internally accesses the LED strip encoder structure from the provided generic RMT encoder pointer.
+ *          It deletes the byte encoder and copy encoder associated with the LED strip encoder.
+ *          Finally, it frees the memory allocated for the LED strip encoder structure.
+ *
+ */
 static esp_err_t rmt_del_led_strip_encoder(rmt_encoder_t *encoder);
 
+/**
+ * @brief Encodes data for an LED strip using the RMT (Remote Control) module.
+ *
+ * This function encodes data for an LED strip using the RMT module's LED strip encoder.
+ *
+ * @param encoder Pointer to the LED strip encoder structure.
+ * @param channel RMT channel handle used for transmission.
+ * @param primary_data Pointer to the data to be encoded.
+ * @param data_size Size of the data to be encoded in bytes.
+ * @param ret_state Pointer to the state of the encoding process.
+ *
+ * @return size_t The number of symbols encoded.
+ *
+ * @note This function encodes data for the LED strip, including RGB data and reset code.
+ *
+ * @details The function switches between two states to encode RGB data and a reset code for the LED strip.
+ *          It utilizes the byte encoder and copy encoder within the LED strip encoder structure for encoding.
+ *          The encoding process continues until completion or until memory becomes full for encoding artifacts.
+ */
 static size_t rmt_encode_led_strip(rmt_encoder_t *encoder, rmt_channel_handle_t channel, const void *primary_data, size_t data_size, rmt_encode_state_t *ret_state);
 
+/**
+ * @brief Resets an LED strip encoder in the RMT (Remote Control) module.
+ *
+ * This function resets an LED strip encoder in the RMT module, clearing its internal state.
+ *
+ * @param encoder Pointer to the LED strip encoder to be reset.
+ *
+ * @return esp_err_t Returns ESP_OK on success, otherwise an error code.
+ *
+ * @note This function resets the byte encoder, copy encoder, and state of the LED strip encoder.
+ *
+ * @details The function internally accesses the LED strip encoder structure from the provided generic RMT encoder pointer.
+ *          It performs a reset operation on the byte encoder, copy encoder, and resets the state of the LED strip encoder to its initial state.
+ */
 static esp_err_t rmt_led_strip_encoder_reset(rmt_encoder_t *encoder);
 
 static esp_err_t rmt_new_led_strip_encoder(const led_strip_encoder_config_t *config, rmt_encoder_handle_t *ret_encoder);
