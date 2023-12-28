@@ -73,9 +73,6 @@ void app_main(void)
 	vTaskDelay(pdMS_TO_TICKS(15000));
 
 	xTaskCreatePinnedToCore(mqtt_msg_pars_task, "mqtt parser Handler", 10000, NULL, 4, NULL, 0);
-
-//	xTaskCreatePinnedToCore(mqtt_publish_task, "Real time Handler", 10000, NULL, 4, NULL, 0);
-
 }
 
 
@@ -148,44 +145,6 @@ static void mqtt_msg_pars_task(void *param)
 	}
 
 }
-
-static void mqtt_publish_task(void *param)
-{
-	TickType_t xLastWakeTime = xTaskGetTickCount();
-
-	char temp_topic_string[20] = {0};
-
-	char temp_publish_string[20] = {0};
-
-	bool topic_toggle = false;
-
-	while(1)
-	{
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5000) );
-
-		topic_toggle ^= 1;
-
-		switch (topic_toggle)
-		{
-			case 1:
-				printf(temp_publish_string, "%d",hWs2812.led_strip_status);
-
-				mqtt_publish(MQTT_RGBLED_GET_ON, &temp_publish_string, 1);
-				break;
-
-			case 0:
-				sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
-
-				mqtt_publish(temp_topic_string, &temp_publish_string, strlen(temp_publish_string));
-
-				break;
-			default:
-				break;
-		}
-
-	}
-}
-
 
 static uint32_t main_get_systick(void)
 {
