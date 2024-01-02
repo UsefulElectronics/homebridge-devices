@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <ctype.h>
 /* MACROS --------------------------------------------------------------------*/
-#define RMT_RGB_PIN		2		//4
+#define RMT_RGB_PIN		4		//2
 
 #define MQTT_DEVICE_ID	"1"
 /* ENUMORATIONS --------------------------------------------------------------*/
