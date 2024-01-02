@@ -31,5 +31,5 @@ iHost Gateway on the other hand runs homebridge plugin that allows the connected
 
 Home bridge allows adding custom IoT devices to iPhone home automation system, which opens the way of integrating many different devices and new possibilities taking home automation to the next level.
 
-![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/mmwave%20sensor%20integration.png)
+![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/ws2812%20led%20strip.png)
 ***
