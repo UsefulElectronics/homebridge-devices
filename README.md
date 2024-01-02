@@ -21,3 +21,15 @@ Homebridge  plugin makes integrating costume DIY  IoT devices to home automation
 ![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/mmwave%20sensor%20integration.png)
 ***
 
+# iHost Homebridge ESP32C3 Addressable RGB LED Control
+***
+### [Tutorial Link](https://youtu.be/fCnm0Ty2xtI) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
+
+In this tutorial, ESP32C3 MCU is used to interface WS2812 Addressable LED Strip over RMT peripheral to set the LEDs color and brightness. The MCU is configured to get connected over WiFi to an MQTT broker and subscribe to topics that will receive LED control related data.
+
+iHost Gateway on the other hand runs homebridge plugin that allows the connected sensors and devices to be interfaced over iPhone home app.
+
+Home bridge allows adding custom IoT devices to iPhone home automation system, which opens the way of integrating many different devices and new possibilities taking home automation to the next level.
+
+![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/mmwave%20sensor%20integration.png)
+***
