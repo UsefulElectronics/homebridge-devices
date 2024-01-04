@@ -53,10 +53,12 @@ TaskHandle_t hMain_uiTask 				= NULL;
 
 static void wirless_init_task(void* param);
 static void mqtt_msg_pars_task(void *param);
+static void touchpad_check_task(void *param);
 
 static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue);
 static void mqtt_publish_task(void *param);
-
+static void system_turn_off_led_strip(void);
+static void system_turn_on_led_strip(void)
 /* FUNCTION PROTOTYPES -------------------------------------------------------*/
 /**
  * @brief 	Initialize system peripherals and create FreeRTOS tasks
@@ -67,12 +69,18 @@ void app_main(void)
 
 	rmt_config(RMT_RGB_PIN);
 
+	gpio_config_input(TOUCH_PAD_PIN);
+
+	led_strip_hsv2rgb(0, 0, 40, &hWs2812.red, &hWs2812.green, &hWs2812.blue);
+
 	xTaskCreatePinnedToCore(wirless_init_task, "WiFi init", 10000, NULL, 4, NULL, 0);
 
 	//Wait for WiFi and MQTT broker connection to be established.
 	vTaskDelay(pdMS_TO_TICKS(15000));
 
 	xTaskCreatePinnedToCore(mqtt_msg_pars_task, "mqtt parser Handler", 10000, NULL, 4, NULL, 0);
+
+	xTaskCreatePinnedToCore(touchpad_check_task, "mqtt parser Handler", 10000, NULL, 4, NULL, 0);
 }
 
 
@@ -146,6 +154,51 @@ static void mqtt_msg_pars_task(void *param)
 
 }
 
+static void touchpad_check_task(void *param)
+{
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+
+	char temp_topic_string[20] = {0};
+
+	char temp_publish_string[20] = {0};
+
+	bool new_touchpad_state = false;
+
+	static bool prev_touchpad_state = false;
+
+	prev_touchpad_state = gpio_get_level(TOUCH_PAD_PIN);
+
+	while(1)
+	{
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(50) );
+
+		new_touchpad_state = gpio_get_level(TOUCH_PAD_PIN);
+
+		if(new_touchpad_state != prev_touchpad_state)
+
+		topic_toggle ^= 1;
+
+		switch (topic_toggle)
+		{
+			case 1:
+				printf(temp_publish_string, "%d",hWs2812.led_strip_status);
+
+				mqtt_publish(MQTT_RGBLED_GET_ON, &temp_publish_string, 1);
+				break;
+
+			case 0:
+				sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
+
+				mqtt_publish(temp_topic_string, &temp_publish_string, strlen(temp_publish_string));
+
+				break;
+			default:
+				break;
+		}
+
+	}
+}
+
 static uint32_t main_get_systick(void)
 {
 	return SYS_TICK();
@@ -163,5 +216,19 @@ static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue)
 			hWs2812.led_strip_buffer[j * RGB_COLOR_COUNT + 2] = blue;
 		}
 	}
+}
+
+static void system_turn_off_led_strip(void)
+{
+	 system_led_buffer_load(0, 0, 0);
+
+	 rmt_channel_send(hWs2812.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
+}
+
+static void system_turn_on_led_strip(void)
+{
+	system_led_buffer_load(hWs2812.red, hWs2812.green, hWs2812.blue);
+
+	 rmt_channel_send(hWs2812.led_strip_buffer, RGB_COLOR_COUNT * RGB_LED_NUMBER);
 }
 /*************************************** USEFUL ELECTRONICS*****END OF FILE****/
