@@ -58,7 +58,7 @@ static void touchpad_check_task(void *param);
 static void system_led_buffer_load(uint32_t red, uint32_t green, uint32_t blue);
 static void mqtt_publish_task(void *param);
 static void system_turn_off_led_strip(void);
-static void system_turn_on_led_strip(void)
+static void system_turn_on_led_strip(void);
 /* FUNCTION PROTOTYPES -------------------------------------------------------*/
 /**
  * @brief 	Initialize system peripherals and create FreeRTOS tasks
@@ -71,7 +71,7 @@ void app_main(void)
 
 	gpio_config_input(TOUCH_PAD_PIN);
 
-	led_strip_hsv2rgb(0, 0, 40, &hWs2812.red, &hWs2812.green, &hWs2812.blue);
+	led_strip_hsv2rgb(0, 0, 30, &hWs2812.red, &hWs2812.green, &hWs2812.blue);
 
 	xTaskCreatePinnedToCore(wirless_init_task, "WiFi init", 10000, NULL, 4, NULL, 0);
 
@@ -158,11 +158,17 @@ static void touchpad_check_task(void *param)
 {
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 
-	char temp_topic_string[20] = {0};
-
 	char temp_publish_string[20] = {0};
 
+    void (*led_strip_control[])(void) =
+    {
+		system_turn_off_led_strip,
+		system_turn_on_led_strip,
+    };
+
 	bool new_touchpad_state = false;
+
+	bool toggle_led_state = false;
 
 	static bool prev_touchpad_state = false;
 
@@ -172,29 +178,49 @@ static void touchpad_check_task(void *param)
 	{
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(50) );
 
+
+
 		new_touchpad_state = gpio_get_level(TOUCH_PAD_PIN);
 
-		if(new_touchpad_state != prev_touchpad_state)
+//		ESP_LOGI(TAG, "pin state %d", new_touchpad_state);
 
-		topic_toggle ^= 1;
-
-		switch (topic_toggle)
+		if((false == new_touchpad_state) && (true == prev_touchpad_state))
 		{
-			case 1:
-				printf(temp_publish_string, "%d",hWs2812.led_strip_status);
+			ESP_LOGI(TAG, "tocuhpad state change");
 
-				mqtt_publish(MQTT_RGBLED_GET_ON, &temp_publish_string, 1);
-				break;
+			hWs2812.led_strip_status ^= 1;
 
-			case 0:
-				sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
+			led_strip_control[hWs2812.led_strip_status]();
 
-				mqtt_publish(temp_topic_string, &temp_publish_string, strlen(temp_publish_string));
+//			prev_touchpad_state = new_touchpad_state;
 
-				break;
-			default:
-				break;
+			switch (hWs2812.led_strip_status)
+			{
+				case true:
+//					sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
+
+//					mqtt_publish(MQTT_RGBLED_GET_HSV, temp_publish_string, strlen(temp_publish_string));
+
+					sprintf(temp_publish_string, "%d",hWs2812.led_strip_status);
+
+					mqtt_publish(MQTT_RGBLED_GET_ON, temp_publish_string, 1);
+
+					sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
+
+					mqtt_publish(MQTT_RGBLED_GET_HSV, temp_publish_string, strlen(temp_publish_string));
+					break;
+
+				case false:
+					sprintf(temp_publish_string, "%d",hWs2812.led_strip_status);
+
+					mqtt_publish(MQTT_RGBLED_GET_ON, temp_publish_string, 1);
+
+					break;
+				default:
+					break;
+			}
 		}
+		prev_touchpad_state = new_touchpad_state;
 
 	}
 }

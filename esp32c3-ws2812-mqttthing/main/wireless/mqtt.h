@@ -42,10 +42,10 @@ extern QueueHandle_t mqttSubscribe_queue;
 #define MQTT_MAX_TOPIC_LENGTH	30
 #define MQTT_MAX_DATA_LENGTH	30
 
-#define MQTT_RGBLED_SET_ON	 		"1/rgbled/seton"
-#define MQTT_RGBLED_GET_ON	 		"1/rgbled/geton"
-#define MQTT_RGBLED_SET_HSV	 		"1/rgbled/sethsv"
-#define MQTT_RGBLED_GET_HSV	 		"1/rgbled/gethsv"
+#define MQTT_RGBLED_SET_ON	 		"2/rgbled/seton"
+#define MQTT_RGBLED_GET_ON	 		"2/rgbled/geton"
+#define MQTT_RGBLED_SET_HSV	 		"2/rgbled/sethsv"
+#define MQTT_RGBLED_GET_HSV	 		"2/rgbled/gethsv"
 //#define MQTT_MOTION_DETECT_TOPIC 		"motion/status"
 
 #define MQTT_BROKER_IO_PORT				"mqtt://192.168.1.103:1883"

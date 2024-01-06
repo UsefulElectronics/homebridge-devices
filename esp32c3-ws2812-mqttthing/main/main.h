@@ -25,7 +25,7 @@
 #include <ctype.h>
 /* MACROS --------------------------------------------------------------------*/
 #define RMT_RGB_PIN		4		//2
-#define TOUCH_PAD_PIN	9		//2
+#define TOUCH_PAD_PIN	7		//8
 
 #define MQTT_DEVICE_ID	"1"
 /* ENUMORATIONS --------------------------------------------------------------*/
