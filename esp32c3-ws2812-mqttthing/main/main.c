@@ -178,11 +178,7 @@ static void touchpad_check_task(void *param)
 	{
 		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(50) );
 
-
-
 		new_touchpad_state = gpio_get_level(TOUCH_PAD_PIN);
-
-//		ESP_LOGI(TAG, "pin state %d", new_touchpad_state);
 
 		if((false == new_touchpad_state) && (true == prev_touchpad_state))
 		{
@@ -192,15 +188,10 @@ static void touchpad_check_task(void *param)
 
 			led_strip_control[hWs2812.led_strip_status]();
 
-//			prev_touchpad_state = new_touchpad_state;
 
 			switch (hWs2812.led_strip_status)
 			{
 				case true:
-//					sprintf(temp_publish_string, "%d, %d, %d",(int) hWs2812.hue, (int) hWs2812.sat, (int) hWs2812.bright);
-
-//					mqtt_publish(MQTT_RGBLED_GET_HSV, temp_publish_string, strlen(temp_publish_string));
-
 					sprintf(temp_publish_string, "%d",hWs2812.led_strip_status);
 
 					mqtt_publish(MQTT_RGBLED_GET_ON, temp_publish_string, 1);
