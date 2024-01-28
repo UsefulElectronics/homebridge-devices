@@ -33,3 +33,15 @@ Home bridge allows adding custom IoT devices to iPhone home automation system, w
 
 ![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/ws2812%20led%20strip.png)
 ***
+
+# ESP32C3 Touch Pad Controlled Smart Home RGB Lamp
+***
+### [Tutorial Link](https://youtu.be/cZPYqAV8ZAE) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
+
+In this tutorial, ESP32C3 MCU is programmed with ESP-IDF to use an external  capacitive touch pad sensor as an ON/OFF switch to control WS2812B Addressable LED Strip. 
+
+The capacitive touch pad can sense touch action through thin objects allowing it to be integrated inside 3D Printed RGB lamp enclosure. The MCU reports the change of the LED strip status by publishing the new status data to an MQTT topic to update Apple Home App smart home devices view. 
+
+
+![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/TOUCH%20SENSOR.png)
+***
