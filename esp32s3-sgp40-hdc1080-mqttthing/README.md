@@ -4,8 +4,7 @@
 
 ![Banner](https://github.com/UsefulElectronics/esp32s3-2.1inch-lvgl/blob/main/banner/logo%20-%20white2.png)
 
-Tutorial Sponsor JLCPCB Website. Get JLCPCB 6-layer PCBs for just $2! Register to get $60 Coupons link below:
-https://jlcpcb.com/?from=ues
+Discover Easy, Affordable, and Reliable PCB manufacturing with JLCPCB! Register to get $60 New customer coupons: https://jlcpcb.com/?from=ues
 
 # ESP32 Air Quality Sensor Home Bridge
 ***
