@@ -3,7 +3,7 @@ Description=V4L2 RTSP Server
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/v4l2rtspserver -m -W 1920 -H 1080 -F 30 /dev/video0
+ExecStart=/usr/local/bin/v4l2rtspserver -P 8555 -m -W 1280 -H 720 -F 30 /dev/video0
 Restart=always
 User=(write here your username)
 
