@@ -1,4 +1,15 @@
+[![Build Status](https://img.shields.io/badge/USEFUL%20ELECTRONICS-YOUTUBE-red)](https://www.youtube.com/user/wardzx1)
+
+# Sponsors
+
+![Banner](https://github.com/UsefulElectronics/esp32s3-2.1inch-lvgl/blob/main/banner/logo%20-%20white2.png)
+
+Discover Easy, Affordable, and Reliable PCB manufacturing with JLCPCB! Register to get $60 New customer coupons: https://jlcpcb.com/?from=ues
+
 # Honebridge Camera UI integration 
+***
+### [Tutorial Link](https://youtu.be/6BVIZXWzByg) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
+
 
 ## Hardware Setup and Camera Test
 
