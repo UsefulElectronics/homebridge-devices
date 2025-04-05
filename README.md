@@ -64,16 +64,17 @@ Additionally, we’ll update the screen UI in Square Line Studio to show the Wi-
 
 # ESP32 Air Quality Sensor Home Bridge
 ***
-### [Tutorial Link](https://youtu.be/J5-5pCDtE0o) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
+### [Tutorial Link](https://youtu.be/6BVIZXWzByg) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
 
 
-In this video, we’ll take the process of building an environmental monitoring device to the next level by making its data accessible on the Apple Home app.
+3D Raspberry Pi 4 and Camera Enclosure are shared in this short description
+https://youtube.com/shorts/gyJjuoF8yzE?feature=share
 
-We'll start by setting up an ESP32-S3-based air quality sensor device, which we previously programmed, to publish data over MQTT.
+In this video, we'll explore how to access the output of a night vision OV5647 camera over WiFi, unlocking a variety of exciting applications.
 
-Next, we'll configure Homebridge to retrieve this data using the MQTTthing extension, allowing the Apple Home app to display the sensor readings on your iPhone.
+We'll start by setting up an RTSP server on a Raspberry Pi 4 for seamless online video streaming. All the steps for camera testing and RTSP server integration will be explained in detail.
 
-Additionally, we’ll update the screen UI in Square Line Studio to show the Wi-Fi and broker connection status 
+We're going to use the command line interface to walk through the process.
 
-![Circuit Diagram](https://github.com/UsefulElectronics/esp32s3-lilygo-thmi-st7789/blob/main/pictures/AIR%20QUALITY%20SENSOR%20GUI.png)
+![Circuit Diagram](https://github.com/UsefulElectronics/homebridge-devices/blob/main/diagram/rtsp%20server.png)
 ***
