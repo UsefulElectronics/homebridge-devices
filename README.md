@@ -62,7 +62,7 @@ Additionally, we’ll update the screen UI in Square Line Studio to show the Wi-
 ![Circuit Diagram](https://github.com/UsefulElectronics/esp32s3-lilygo-thmi-st7789/blob/main/pictures/AIR%20QUALITY%20SENSOR%20GUI%20MQTT.png)
 ***
 
-# ESP32 Air Quality Sensor Home Bridge
+# Raspberry Pi Night Vision Camera RTSP
 ***
 ### [Tutorial Link](https://youtu.be/6BVIZXWzByg) On [![Build Status](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/wardzx1) 
 
