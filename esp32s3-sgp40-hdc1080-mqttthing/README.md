@@ -18,7 +18,10 @@ We'll start by setting up an ESP32-S3-based air quality sensor device, which we 
 
 Next, we'll configure Homebridge to retrieve this data using the MQTTthing extension, allowing the Apple Home app to display the sensor readings on your iPhone.
 
-Additionally, we’ll update the screen UI in Square Line Studio to show the Wi-Fi and broker connection status 
+Additionally, we’ll update the screen UI in Square Line Studio to show the Wi-Fi and broker connection status.
+
+Find full project repository here:
+https://github.com/UsefulElectronics/esp32s3-lilygo-thmi-st7789
 
 ![Circuit Diagram](https://github.com/UsefulElectronics/esp32s3-lilygo-thmi-st7789/blob/main/pictures/AIR%20QUALITY%20SENSOR%20GUI%20MQTT.png)
 ***
